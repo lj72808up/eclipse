@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project default="run">
+	
+	<!--location可以根据系统改变路径分隔符-->
+	<property name="build.dir" location="build"/>
+	<property name="build.src" location="${build.dir}/src"/>
+	<property name="build.class" location="${build.dir}/class"/>
+	<property name="build.jar" location="${build.dir}/jar"/>
+	<property file="build.properties"></property><!--属性太多就引入外部文件-->
+	<property environment="env"></property><!--引入环境变量-->
+	<fileset id="srcset" dir="src">
+		<include name="**/*.*"/>  <!--包含src文件夹下的所有文件-->
+	</fileset>
+	
+	<target name="test">
+		<echo>${build.jarname}</echo>
+		<echo>${env.CATALINA_HOME}</echo>
+	</target>
+	
+	<target name="init">
+		<delete dir="${build.dir}"/>
+		<mkdir dir="${build.src}"/>
+		<mkdir dir="${build.class}"/>
+		<mkdir dir="${build.jar}"/>
+	</target>
+	
+	<target name="compile" depends="init">
+		<javac srcdir="src" destdir="${build.class}"></javac>
+	</target>
+	
+	<target name="copysrc"> <!--拷贝文件夹-->
+		<copy todir="${build.src}">
+			<fileset refid="srcset" />
+		</copy>
+	</target>
+	
+	<target name="makejar">
+		<jar destfile="${build.jar}/${build.jarname}" basedir="${build.class}">
+			<manifest><!--jar包中的MANIFEST文件加上主函数入口-->
+				<attribute name="Main-Class" value="com.HelloWorld"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<!--不加fork报错-->
+	<target name="run" depends="compile,copysrc,makejar">
+		<echo>class运行结果</echo>
+		<java classpath="${build.class}" classname="com.HelloWorld">
+			<arg value="张三"/>
+		</java>
+		
+		<echo>jar包运行结果</echo>
+		<java jar="${build.jar}/${build.jarname}" fork="true">
+			<arg value="李四"/>
+		</java>
+	</target>
+</project>
