@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.PersonMapper"> 
+  
+  <resultMap type="person" id="personmap"> <!-- person已经过typealias转意 -->
+    <result property="name" column="name"/>
+    <result property="age" column="age"/>
+  </resultMap> 
+
+  <resultMap id="poMapper" type="person" extends="personmap"> <!-- resultmap是吧结果集映射到对象,及时继承,也要写出结果集封装的类 -->
+    <collection property="olist" ofType="beans.Order">  <!-- 一对多的result map:用于left outer join的结果集封装 -->
+      <result property="oid" column="oid" />     
+      <result property="oname" column="name" />     
+    </collection>
+  </resultMap>
+  
+  <resultMap type="person" id="psMapper" extends="personmap">
+  	<association property="s" javaType="beans.School"><!-- person的属性 -->
+  		<result property="sname" column="sname" /> <!-- school的属性 -->
+  	</association>
+  </resultMap>
+
+  <sql id="personColumns">pid,name,age</sql>
+
+  <select id="selectPerson" parameterType="int" resultType="hashmap">  <!-- resulttype返回java类型 -->
+    select * from person where pid = #{pid}							   <!-- 传递一个参数,设置parametertype -->
+  </select>
+  
+  <select id="selectAllColumn" parameterType="person" resultMap="personmap">
+    select <include refid="personColumns"/> from person where pid=#{pid,jdbcType=VARCHAR}
+  </select>
+  
+  <insert id="addPerson" parameterType="person">
+    insert into person(name,age) values(#{name},#{age})
+  </insert>
+  
+  <select id="selectIds" parameterType="int" resultMap="personmap">
+  	select <include refid="personColumns"/> from person where pid in 
+  	<foreach item="id" collection="array" open="(" close=")" separator=",">#{id}</foreach> 
+  </select>
+  
+  <select id="selectPO" parameterType="map" resultMap="poMapper">
+  	select p.pid,o.name from (select pid,oid from person 
+		<trim prefix="where" prefixOverrides="and">
+		 <if test="name !=null">and name=#{name}</if>
+		 <if test="age != null" > and age=#{age}</if>
+		</trim>
+    )p left outer join orders o on p.oid=o.oid
+  </select>
+  
+  <select id="selectPS" parameterType="String" resultMap="psMapper">
+  	select p.name,s.sname from (select sid,name from person where name=#{name})p
+  	left outer join school s on p.sid=s.sid
+  </select>
+</mapper>
