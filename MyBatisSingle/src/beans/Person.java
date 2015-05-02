@@ -9,6 +9,11 @@ public class Person {
 	private List<Order> olist;
 	private School s;
 	
+	public Person() {   // 必须有空残构造,否则result无法映射
+		super();
+	}
+
+	
 	public School getS() {
 		return s;
 	}
@@ -25,9 +30,6 @@ public class Person {
 		this.olist = olist;
 	}
 
-	public Person() {   // 必须有空残构造,否则result无法映射
-		super();
-	}
 
 	public Person(String name, int age) {
 		super();

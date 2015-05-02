@@ -23,6 +23,7 @@ import org.junit.Test;
 
 
 
+
 import beans.Person;
 
 public class TestPerson {
@@ -40,7 +41,7 @@ public class TestPerson {
 	
 	
 	@Test
-	public void testMuti(){
+	public void testMuti(){ //多where条件
 		String config = "mybatis/mybatis-config.xml";
 		InputStream is = new TestPerson().getClass().getClassLoader().getResourceAsStream(config);
 		SqlSessionFactory sfFactory = new SqlSessionFactoryBuilder().build(is);
@@ -70,7 +71,7 @@ public class TestPerson {
 	}
 	
 	@Test
-	public void fun2(){
+	public void fun2() throws InterruptedException{
 		String config = "mybatis/mybatis-config.xml";
 		InputStream is = this.getClass().getClassLoader().getResourceAsStream(config);
 		SqlSessionFactory sfFactory = new SqlSessionFactoryBuilder().build(is);
@@ -78,6 +79,7 @@ public class TestPerson {
 		
 		Person p = new Person("zhaoliu",24);
 		session.insert("com.PersonMapper.addPerson", p);
+		Thread.sleep(10000);
 		session.commit();  //dml语句手动提交事务
 	}
 

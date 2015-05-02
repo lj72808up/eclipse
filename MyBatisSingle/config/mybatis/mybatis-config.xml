@@ -7,11 +7,11 @@
 
   <properties resource="mybatis/jdbc.properties"/> <!-- 引入外部配置文件 , 路径写绝对路径,前面不带/-->
   
-  <typeAliases> <!-- 顺序不能变 -->
+  <typeAliases> <!-- 顺序不能变 ,给类起别名,用于结果集映射-->
     <typeAlias type="beans.Person" alias="person"/>
   </typeAliases>
 
-  <environments default="development"><!-- 配置连接数据库 -->
+  <environments default="development"><!-- 配置连接数据库,可配置多个数据库连接,指定默认连接即可 -->
     <environment id="development">
       <transactionManager type="JDBC"/>  <!-- 由jdbc的连接管理事务 -->
       <dataSource type="POOLED">         <!-- 配置数据源 -->

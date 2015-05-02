@@ -4,12 +4,12 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.PersonMapper"> 
   
-  <resultMap type="person" id="personmap"> <!-- person已经过typealias转意 -->
+  <resultMap type="person" id="personmap"> <!-- person已经过typealias起别名 -->
     <result property="name" column="name"/>
     <result property="age" column="age"/>
   </resultMap> 
 
-  <resultMap id="poMapper" type="person" extends="personmap"> <!-- resultmap是吧结果集映射到对象,及时继承,也要写出结果集封装的类 -->
+  <resultMap id="poMapper" type="person" extends="personmap"> <!-- resultmap是把结果集映射到对象,及时继承,也要写出结果集封装的类 -->
     <collection property="olist" ofType="beans.Order">  <!-- 一对多的result map:用于left outer join的结果集封装 -->
       <result property="oid" column="oid" />     
       <result property="oname" column="name" />     
@@ -22,25 +22,30 @@
   	</association>
   </resultMap>
 
-  <sql id="personColumns">pid,name,age</sql>
+  <sql id="personColumns">pid,name,age</sql> <!-- sql查询列 -->
 
+  <!-- 1.select传1个参数,返回java类型结果集 -->
   <select id="selectPerson" parameterType="int" resultType="hashmap">  <!-- resulttype返回java类型 -->
     select * from person where pid = #{pid}							   <!-- 传递一个参数,设置parametertype -->
   </select>
   
-  <select id="selectAllColumn" parameterType="person" resultMap="personmap">
+  <!-- 2.select传对象的属性作为参数 -->
+  <select id="selectAllColumn" parameterType="person" resultMap="personmap"> <!-- "person"是别名 -->
     select <include refid="personColumns"/> from person where pid=#{pid,jdbcType=VARCHAR}
   </select>
   
+  <!-- 3.insert语句无resultmap -->
   <insert id="addPerson" parameterType="person">
     insert into person(name,age) values(#{name},#{age})
   </insert>
   
+  <!-- 4.select传递多个参数,用数组传递 -->
   <select id="selectIds" parameterType="int" resultMap="personmap">
   	select <include refid="personColumns"/> from person where pid in 
   	<foreach item="id" collection="array" open="(" close=")" separator=",">#{id}</foreach> 
   </select>
   
+  <!--5.select的动态where条件,自动加上and/or -->
   <select id="selectPO" parameterType="map" resultMap="poMapper">
   	select p.pid,o.name from (select pid,oid from person 
 		<trim prefix="where" prefixOverrides="and">
